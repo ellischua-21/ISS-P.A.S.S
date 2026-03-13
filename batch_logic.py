@@ -39,7 +39,7 @@ def change_camera_password(ip: str, username: str, current_password: str, new_pa
         if response.status_code in (200, 204):
             return True, f"{ip} -> Password changed successfully."
         elif response.status_code == 401:
-            return False, f"{ip} -> Authentication failed."
+            return False, f"{ip} -> Incorrect username or password."
         elif response.status_code == 403:
             return False, f"{ip} -> Password does not meet policy."
         else:
