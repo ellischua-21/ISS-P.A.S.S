@@ -14,13 +14,16 @@ class PasswordManagerGUI:
         self.root.geometry(config.WINDOW_SIZE)
         self.root.resizable(config.RESIZABLE_WIDTH, config.RESIZABLE_HEIGHT)
 
+        # Device management variables
         self.ip_vars = []
         self.discovered_ips = []
 
+        # Loading animation variables
         self.loading = False
         self.loading_texts = config.LOADING_TEXTS
         self.loading_index = 0
 
+        # Password visibility toggles
         self.current_password_visible = False
         self.new_password_visible = False
         self.confirm_password_visible = False
@@ -28,6 +31,8 @@ class PasswordManagerGUI:
         self.setup_styles()
         self.build_ui()
         self.refresh_devices()
+
+    #--------------- UI SETUP METHODS -----------------
 
     def setup_styles(self):
         self.style = ttk.Style()
@@ -135,6 +140,8 @@ class PasswordManagerGUI:
         )
         self.deselect_all_button.pack(fill="x", pady=(2, 0))
 
+    #--------------- CREDENTIALS FRAME -----------------
+
     def build_credentials_frame(self, parent):
         cred_frame = tk.LabelFrame(
             parent,
@@ -230,6 +237,8 @@ class PasswordManagerGUI:
         self.loading_label = ttk.Label(cred_frame, text="")
         self.loading_label.grid(row=10, column=0, columnspan=2, pady=5)
 
+    #--------------- LOG FRAME -----------------
+
     def build_log_frame(self, parent):
         log_frame = tk.LabelFrame(
             parent,
@@ -251,6 +260,8 @@ class PasswordManagerGUI:
             fg="black"
         )
         self.log_box.pack(fill="x", expand=False)
+
+    #--------------- PASSWORD VISIBILITY -----------------
 
     def toggle_current_password(self):
         self.current_password_visible = not self.current_password_visible
@@ -279,6 +290,8 @@ class PasswordManagerGUI:
             self.confirm_pass_entry.config(show="*")
             self.confirm_eye_button.config(text="👁")
 
+    #--------------- SELECT/DESELECT -----------------
+
     def select_all(self):
         for _, var in self.ip_vars:
             var.set(True)
@@ -286,6 +299,8 @@ class PasswordManagerGUI:
     def deselect_all(self):
         for _, var in self.ip_vars:
             var.set(False)
+
+    #--------------- RESULTS LOG METHODS -----------------
 
     def animate_loading(self):
         if self.loading:
@@ -307,6 +322,8 @@ class PasswordManagerGUI:
         self.log_box.config(state="normal")
         self.log_box.delete(1.0, tk.END)
         self.log_box.config(state="disabled")
+
+    #--------------- DEVICE LIST -----------------
 
     def populate_device_list(self, ips):
         for widget in self.device_list_frame.winfo_children():
@@ -349,6 +366,8 @@ class PasswordManagerGUI:
 
         self.populate_device_list(filtered_ips)
 
+    #--------------- DISCOVERY WORKFLOW METHODS -----------------
+
     def run_discovery(self):
         try:
             print("Detected local IP:", get_local_ip())
@@ -387,6 +406,8 @@ class PasswordManagerGUI:
 
         thread = threading.Thread(target=self.run_discovery, daemon=True)
         thread.start()
+
+    #--------------- PASSWORD UPDATE WORKFLOW METHODS -----------------
 
     def run_batch_process(self, selected_ips, username, current_pass, new_pass):
         results = batch_change_password(
