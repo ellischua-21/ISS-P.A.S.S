@@ -52,7 +52,7 @@ class GUIBuilders:
         self.search_entry = ttk.Entry(
             search_frame,
             textvariable=self.search_var,
-            font=("Consolas", 12),
+            font=("mono", 12),
             width=16
         )
         self.search_entry.pack(side="left", fill="x", expand=True, padx=(5, 0))
