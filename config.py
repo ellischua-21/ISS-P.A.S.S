@@ -1,4 +1,4 @@
-WINDOW_TITLE = "P.A.S.S"
+WINDOW_TITLE = "P.A.S.S."
 WINDOW_SIZE = "900x900"
 RESIZABLE_WIDTH = False
 RESIZABLE_HEIGHT = False
@@ -11,3 +11,6 @@ LABELED_FRAME_FONT = ("Consolas", 16, "bold")
 DEVICE_FONT = ("mono", 16)
 ENTRY_FONT = ("Consolas", 14)
 LOG_FONT = ("Consolas", 13)
+
+LOGIN_USERNAME = "admin"
+LOGIN_PASSWORD = "password123"

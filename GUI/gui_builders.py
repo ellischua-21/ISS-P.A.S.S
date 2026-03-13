@@ -133,7 +133,12 @@ class GUIBuilders:
         cred_frame.grid_columnconfigure(1, weight=1)
 
         ttk.Label(cred_frame, text="Username").grid(row=0, column=0, sticky="w", padx=5, pady=8)
-        self.username_entry = ttk.Entry(cred_frame, font=config.ENTRY_FONT, width=21)
+        self.username_entry = ttk.Entry(
+            cred_frame, 
+            font=config.ENTRY_FONT, 
+            width=21
+        )
+
         self.username_entry.insert(0, "admin")
         self.username_entry.grid(row=0, column=1, sticky="w", padx=5, pady=8)
 

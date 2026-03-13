@@ -1,7 +1,7 @@
 import tkinter as tk
-from GUI.gui_app import PasswordManagerGUI
+from login import LoginWindow
 
 if __name__ == "__main__":
     root = tk.Tk()
-    app = PasswordManagerGUI(root)
+    login = LoginWindow(root)
     root.mainloop()
