@@ -67,7 +67,7 @@ class GUIHelpers:
         self.ip_vars.clear()
 
         if not ips:
-            empty_label = ttk.Label(self.device_list_frame, text="No Hikvision devices found.")
+            empty_label = ttk.Label(self.device_list_frame, text="No devices found.")
             empty_label.pack(anchor="w", pady=10)
             self.device_count_label.config(text="Device Count: 0")
             return

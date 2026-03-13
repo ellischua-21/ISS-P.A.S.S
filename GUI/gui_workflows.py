@@ -8,7 +8,7 @@ from discovery import discover_devices, get_local_ip
 class GUIWorkflows:
     def run_discovery(self):
         try:
-            print("Detected local IP:", get_local_ip())
+            self.append_log(f"Detected local IP: {get_local_ip()}")
             devices = discover_devices()
             self.root.after(0, lambda: self.finish_discovery(devices))
         except Exception as e:
@@ -21,7 +21,7 @@ class GUIWorkflows:
         if error_message:
             self.append_log(f"Discovery error: {error_message}")
         else:
-            self.append_log(f"Discovery complete. {len(devices)} Hikvision device(s) found.")
+            self.append_log(f"Discovery complete. {len(devices)} device(s) found.")
 
         self.refresh_button.config(state="normal")
         self.select_all_button.config(state="normal")
@@ -33,7 +33,7 @@ class GUIWorkflows:
         self.deselect_all_button.config(state="disabled")
 
         self.clear_log()
-        self.append_log("Scanning current subnet for Hikvision devices...")
+        self.append_log("Scanning current subnet...")
         self.device_count_label.config(text="Device Count: Scanning...")
 
         for widget in self.device_list_frame.winfo_children():
