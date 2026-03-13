@@ -1,39 +1,26 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 import threading
-import socket
-from concurrent.futures import ThreadPoolExecutor, as_completed
-
-import requests
 
 from batch_logic import batch_change_password, is_valid_password
+from discovery import discover_devices, get_local_ip
+import config
 
-
-# =============================================================================
-# MAIN GUI CLASS
-# =============================================================================
 
 class PasswordManagerGUI:
-    # -------------------------------------------------------------------------
-    # INITIALIZATION
-    # -------------------------------------------------------------------------
-
     def __init__(self, root):
         self.root = root
-        self.root.title("P.A.S.S")
-        self.root.geometry("900x900")
-        self.root.resizable(False, False)
+        self.root.title(config.WINDOW_TITLE)
+        self.root.geometry(config.WINDOW_SIZE)
+        self.root.resizable(config.RESIZABLE_WIDTH, config.RESIZABLE_HEIGHT)
 
-        # Device management variables
         self.ip_vars = []
         self.discovered_ips = []
 
-        # Loading animation variables
         self.loading = False
-        self.loading_texts = ["Processing", "Processing.", "Processing..", "Processing..."]
+        self.loading_texts = config.LOADING_TEXTS
         self.loading_index = 0
 
-        # Password visibility toggles
         self.current_password_visible = False
         self.new_password_visible = False
         self.confirm_password_visible = False
@@ -42,15 +29,11 @@ class PasswordManagerGUI:
         self.build_ui()
         self.refresh_devices()
 
-    # -------------------------------------------------------------------------
-    # UI SETUP METHODS
-    # -------------------------------------------------------------------------
-
     def setup_styles(self):
         self.style = ttk.Style()
-        self.style.configure("TLabel", font=("Consolas", 14))
-        self.style.configure("TButton", font=("Consolas", 14))
-        self.style.configure("TLabelframe.Label", font=("Consolas", 16, "bold"))
+        self.style.configure("TLabel", font=config.LABEL_FONT)
+        self.style.configure("TButton", font=config.BUTTON_FONT)
+        self.style.configure("TLabelframe.Label", font=config.LABELED_FRAME_FONT)
 
     def build_ui(self):
         main_frame = ttk.Frame(self.root, padding=10)
@@ -67,7 +50,7 @@ class PasswordManagerGUI:
         device_frame = tk.LabelFrame(
             parent,
             text="Detected Devices",
-            font=("Consolas", 16, "bold"),
+            font=config.LABELED_FRAME_FONT,
             bd=3,
             relief="solid",
             padx=5,
@@ -151,103 +134,12 @@ class PasswordManagerGUI:
             command=self.deselect_all
         )
         self.deselect_all_button.pack(fill="x", pady=(2, 0))
-        device_frame = tk.LabelFrame(
-            parent,
-            text="Detected Devices",
-            font=("Consolas", 16, "bold"),
-            bd=3,
-            relief="solid",
-            padx=5,
-            pady=5
-        )
-        device_frame.pack(side="left", fill="y", padx=(0, 10), pady=5)
-        device_frame.config(width=260)
-        device_frame.pack_propagate(False)
-
-        device_frame.grid_columnconfigure(0, weight=1)
-        device_frame.grid_columnconfigure(1, weight=0)
-        device_frame.grid_rowconfigure(2, weight=1)
-
-        self.device_count_label = ttk.Label(device_frame, text="Device Count: 0")
-        self.device_count_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=(0, 5))
-
-        search_frame = ttk.Frame(device_frame)
-        search_frame.grid(row=1, column=0, columnspan=2, sticky="ew", padx=5, pady=(0, 5))
-
-        ttk.Label(search_frame, text="Search:").pack(side="left")
-        self.search_var = tk.StringVar()
-        self.search_var.trace_add("write", self.filter_device_list)
-
-        self.search_entry = ttk.Entry(search_frame, textvariable=self.search_var, font=("Consolas", 12), width=16)
-        self.search_entry.pack(side="left", fill="x", expand=True, padx=(5, 0))
-
-        canvas_frame = ttk.Frame(device_frame)
-        canvas_frame.grid(row=2, column=0, sticky="nsew")
-
-        self.device_canvas = tk.Canvas(
-            canvas_frame,
-            height=300,
-            width=210,
-            highlightthickness=0
-        )
-        self.device_scrollbar = ttk.Scrollbar(
-            canvas_frame,
-            orient="vertical",
-            command=self.device_canvas.yview
-        )
-        self.device_list_frame = ttk.Frame(self.device_canvas)
-
-        self.device_list_frame.bind(
-            "<Configure>",
-            lambda e: self.device_canvas.configure(
-                scrollregion=self.device_canvas.bbox("all")
-            )
-        )
-
-        self.device_canvas.create_window((0, 0), window=self.device_list_frame, anchor="nw")
-        self.device_canvas.configure(yscrollcommand=self.device_scrollbar.set)
-
-        def _on_mousewheel(event):
-            self.device_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
-
-        self.device_canvas.bind_all("<MouseWheel>", _on_mousewheel)
-
-        self.device_canvas.pack(side="left", fill="both", expand=True)
-        self.device_scrollbar.pack(side="right", fill="y")
-
-        button_frame = ttk.Frame(device_frame)
-        button_frame.grid(row=2, column=1, sticky="n", padx=5, pady=5)
-
-        self.refresh_button = ttk.Button(
-            button_frame,
-            text="Refresh",
-            command=self.refresh_devices
-        )
-        self.refresh_button.pack(fill="x", pady=(0, 2))
-
-        self.select_all_button = ttk.Button(
-            button_frame,
-            text="Select All",
-            command=self.select_all
-        )
-        self.select_all_button.pack(fill="x", pady=2)
-
-        self.deselect_all_button = ttk.Button(
-            button_frame,
-            text="Deselect All",
-            command=self.deselect_all
-        )
-        self.deselect_all_button.pack(fill="x", pady=(2, 0))
-
-    # -------------------------------------------------------------------------
-    # CREDENTIALS FRAME
-    # -------------------------------------------------------------------------
 
     def build_credentials_frame(self, parent):
         cred_frame = tk.LabelFrame(
             parent,
             text="Credentials",
-            font=("Consolas", 16, "bold"),
+            font=config.LABELED_FRAME_FONT,
             bd=3,
             relief="solid",
             padx=10,
@@ -261,7 +153,7 @@ class PasswordManagerGUI:
         cred_frame.grid_columnconfigure(1, weight=1)
 
         ttk.Label(cred_frame, text="Username").grid(row=0, column=0, sticky="w", padx=5, pady=8)
-        self.username_entry = ttk.Entry(cred_frame, font=("Consolas", 14), width=21)
+        self.username_entry = ttk.Entry(cred_frame, font=config.ENTRY_FONT, width=21)
         self.username_entry.insert(0, "admin")
         self.username_entry.grid(row=0, column=1, sticky="w", padx=5, pady=8)
 
@@ -271,7 +163,7 @@ class PasswordManagerGUI:
 
         self.current_pass_entry = ttk.Entry(
             current_pass_frame,
-            font=("Consolas", 14),
+            font=config.ENTRY_FONT,
             width=21,
             show="*"
         )
@@ -291,7 +183,7 @@ class PasswordManagerGUI:
 
         self.new_pass_entry = ttk.Entry(
             new_pass_frame,
-            font=("Consolas", 14),
+            font=config.ENTRY_FONT,
             width=21,
             show="*"
         )
@@ -311,7 +203,7 @@ class PasswordManagerGUI:
 
         self.confirm_pass_entry = ttk.Entry(
             confirm_pass_frame,
-            font=("Consolas", 14),
+            font=config.ENTRY_FONT,
             width=21,
             show="*"
         )
@@ -338,15 +230,11 @@ class PasswordManagerGUI:
         self.loading_label = ttk.Label(cred_frame, text="")
         self.loading_label.grid(row=10, column=0, columnspan=2, pady=5)
 
-    # -------------------------------------------------------------------------
-    # LOG FRAME
-    # -------------------------------------------------------------------------
-
     def build_log_frame(self, parent):
         log_frame = tk.LabelFrame(
             parent,
             text="Results Log",
-            font=("Consolas", 16, "bold"),
+            font=config.LABELED_FRAME_FONT,
             bd=3,
             relief="solid",
             padx=10,
@@ -357,16 +245,12 @@ class PasswordManagerGUI:
         self.log_box = tk.Text(
             log_frame,
             height=12,
-            font=("Consolas", 13),
+            font=config.LOG_FONT,
             state="disabled",
             bg="white",
             fg="black"
         )
         self.log_box.pack(fill="x", expand=False)
-
-    # -------------------------------------------------------------------------
-    # PASSWORD VISIBILITY TOGGLE METHODS
-    # -------------------------------------------------------------------------
 
     def toggle_current_password(self):
         self.current_password_visible = not self.current_password_visible
@@ -395,10 +279,6 @@ class PasswordManagerGUI:
             self.confirm_pass_entry.config(show="*")
             self.confirm_eye_button.config(text="👁")
 
-    # -------------------------------------------------------------------------
-    # DEVICE SELECTION METHODS
-    # -------------------------------------------------------------------------
-
     def select_all(self):
         for _, var in self.ip_vars:
             var.set(True)
@@ -406,10 +286,6 @@ class PasswordManagerGUI:
     def deselect_all(self):
         for _, var in self.ip_vars:
             var.set(False)
-
-    # -------------------------------------------------------------------------
-    # LOGGING METHODS
-    # -------------------------------------------------------------------------
 
     def animate_loading(self):
         if self.loading:
@@ -432,84 +308,6 @@ class PasswordManagerGUI:
         self.log_box.delete(1.0, tk.END)
         self.log_box.config(state="disabled")
 
-    # -------------------------------------------------------------------------
-    # NETWORK DISCOVERY METHODS
-    # -------------------------------------------------------------------------
-
-    def get_local_ip(self):
-        hostname = socket.gethostname()
-        local_ip = socket.gethostbyname(hostname)
-
-        if local_ip.startswith("127."):
-            sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            try:
-                sock.connect(("8.8.8.8", 80))
-                local_ip = sock.getsockname()[0]
-            finally:
-                sock.close()
-
-        return local_ip
-
-    def get_local_subnet_hosts(self):
-        local_ip = self.get_local_ip()
-        ip_parts = local_ip.split(".")
-        subnet_base = ".".join(ip_parts[:3])
-        return [f"{subnet_base}.{i}" for i in range(1, 255) if f"{subnet_base}.{i}" != local_ip]
-
-    def is_hikvision_device(self, ip):
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(0.8)
-        try:
-            result = sock.connect_ex((ip, 80))
-            if result != 0:
-                return False
-        finally:
-            sock.close()
-
-        try:
-            response = requests.get(
-                f"http://{ip}/ISAPI/System/deviceInfo",
-                timeout=1.5,
-                allow_redirects=False
-            )
-
-            auth_header = response.headers.get("WWW-Authenticate", "").lower()
-
-            if response.status_code == 200 and "DeviceInfo" in response.text:
-                return True
-
-            if response.status_code == 401 and "digest" in auth_header:
-                return True
-
-        except requests.RequestException:
-            pass
-
-        return False
-
-    def discover_devices(self):
-        hosts = self.get_local_subnet_hosts()
-        found_devices = []
-
-        with ThreadPoolExecutor(max_workers=20) as executor:
-            future_map = {
-                executor.submit(self.is_hikvision_device, ip): ip
-                for ip in hosts
-            }
-
-            for future in as_completed(future_map):
-                ip = future_map[future]
-                try:
-                    if future.result():
-                        found_devices.append(ip)
-                except Exception:
-                    pass
-
-        return sorted(found_devices, key=lambda x: tuple(map(int, x.split("."))))
-
-    # -------------------------------------------------------------------------
-    # DEVICE LIST MANAGEMENT METHODS
-    # -------------------------------------------------------------------------
-
     def populate_device_list(self, ips):
         for widget in self.device_list_frame.winfo_children():
             widget.destroy()
@@ -528,7 +326,7 @@ class PasswordManagerGUI:
                 self.device_list_frame,
                 text=ip,
                 variable=var,
-                font=("mono", 16),
+                font=config.DEVICE_FONT,
                 anchor="w",
                 padx=5,
                 pady=12,
@@ -551,14 +349,10 @@ class PasswordManagerGUI:
 
         self.populate_device_list(filtered_ips)
 
-    # -------------------------------------------------------------------------
-    # DISCOVERY WORKFLOW METHODS
-    # -------------------------------------------------------------------------
-
     def run_discovery(self):
         try:
-            print("Detected local IP:", self.get_local_ip())
-            devices = self.discover_devices()
+            print("Detected local IP:", get_local_ip())
+            devices = discover_devices()
             self.root.after(0, lambda: self.finish_discovery(devices))
         except Exception as e:
             self.root.after(0, lambda: self.finish_discovery([], str(e)))
@@ -593,10 +387,6 @@ class PasswordManagerGUI:
 
         thread = threading.Thread(target=self.run_discovery, daemon=True)
         thread.start()
-
-    # -------------------------------------------------------------------------
-    # PASSWORD UPDATE WORKFLOW METHODS
-    # -------------------------------------------------------------------------
 
     def run_batch_process(self, selected_ips, username, current_pass, new_pass):
         results = batch_change_password(
@@ -655,13 +445,3 @@ class PasswordManagerGUI:
             daemon=True
         )
         thread.start()
-
-
-# =============================================================================
-# MAIN EXECUTION
-# =============================================================================
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = PasswordManagerGUI(root)
-    root.mainloop()
