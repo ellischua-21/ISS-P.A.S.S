@@ -60,7 +60,7 @@ class GUIHelpers:
         self.log_box.delete(1.0, tk.END)
         self.log_box.config(state="disabled")
 
-    def populate_device_list(self, ips):
+    def populate_device_list(self, ips, checked_ips=None):
         for widget in self.device_list_frame.winfo_children():
             widget.destroy()
 
@@ -72,8 +72,11 @@ class GUIHelpers:
             self.device_count_label.config(text="Device Count: 0")
             return
 
+        if checked_ips is None:
+            checked_ips = set()
+
         for ip in ips:
-            var = tk.BooleanVar()
+            var = tk.BooleanVar(value=(ip in checked_ips))
             chk = tk.Checkbutton(
                 self.device_list_frame,
                 text=ip,
@@ -94,9 +97,16 @@ class GUIHelpers:
     def filter_device_list(self, *args):
         query = self.search_var.get().strip().lower()
 
+        # Collect currently checked IPs before repopulating
+        checked_ips = {ip for ip, var in self.ip_vars if var.get()}
+
         if not query:
             filtered_ips = self.discovered_ips
         else:
             filtered_ips = [ip for ip in self.discovered_ips if query in ip.lower()]
 
-        self.populate_device_list(filtered_ips)
+        self.populate_device_list(filtered_ips, checked_ips)
+
+        # Scroll to top when searching
+        if query:
+            self.device_canvas.yview_moveto(0.0)

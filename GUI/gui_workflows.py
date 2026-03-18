@@ -46,21 +46,29 @@ class GUIWorkflows:
         thread.start()
 
     def run_batch_process(self, selected_ips, username, current_pass, new_pass):
+        self.processed_count = 0
+
+        def log_result(result):
+            self.root.after(0, lambda: self.append_log(result["message"]))
+            self.processed_count += 1
+            self.root.after(0, lambda: self.progress_label.config(text=f"Progress: {self.processed_count} / {len(selected_ips)}"))
+            if result["success"]:
+                # Find and uncheck the successful IP
+                for ip, var in self.ip_vars:
+                    if ip == result["ip"]:
+                        self.root.after(0, lambda v=var: v.set(False))
+                        break
+
         results = batch_change_password(
             ip_list=selected_ips,
             username=username,
             current_password=current_pass,
-            new_password=new_pass
+            new_password=new_pass,
+            callback=log_result
         )
         self.root.after(0, lambda: self.finish_update(results, selected_ips))
 
     def finish_update(self, results, selected_ips):
-        self.log_box.config(state="normal")
-        for r in results:
-            self.log_box.insert("end", r["message"] + "\n")
-        self.log_box.config(state="disabled")
-
-        self.progress_label.config(text=f"Progress: {len(results)} / {len(selected_ips)}")
         self.loading = False
         self.start_button.config(state="normal")
 

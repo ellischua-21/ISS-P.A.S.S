@@ -53,7 +53,7 @@ def change_camera_password(ip: str, username: str, current_password: str, new_pa
         return False, f"{ip} -> Error: {str(e)}"
 
 
-def batch_change_password(ip_list, username, current_password, new_password, retries=1, delay_between_devices=1):
+def batch_change_password(ip_list, username, current_password, new_password, retries=1, delay_between_devices=1, callback=None):
 
     results = []
 
@@ -80,11 +80,16 @@ def batch_change_password(ip_list, username, current_password, new_password, ret
             if attempt < retries:
                 time.sleep(1)
 
-        results.append({
+        result = {
             "ip": ip,
             "success": success,
             "message": message
-        })
+        }
+
+        results.append(result)
+
+        if callback:
+            callback(result)
 
         time.sleep(delay_between_devices)
 
