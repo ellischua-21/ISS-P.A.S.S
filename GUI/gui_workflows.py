@@ -94,6 +94,9 @@ class GUIWorkflows:
             messagebox.showerror("Password Error", msg)
             return
 
+        if not messagebox.askyesno("Confirm Start", f"Are you sure you want to update passwords for {len(selected_ips)} device(s)?"):
+            return
+
         self.clear_log()
         self.progress_label.config(text=f"Progress: 0 / {len(selected_ips)}")
 

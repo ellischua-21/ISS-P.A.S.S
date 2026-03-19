@@ -86,11 +86,6 @@ class GUIBuilders:
         self.device_canvas.create_window((0, 0), window=self.device_list_frame, anchor="nw")
         self.device_canvas.configure(yscrollcommand=self.device_scrollbar.set)
 
-        def _on_mousewheel(event):
-            self.device_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
-
-        self.device_canvas.bind_all("<MouseWheel>", _on_mousewheel)
-
         self.device_canvas.pack(side="left", fill="both", expand=True)
         self.device_scrollbar.pack(side="right", fill="y")
 
@@ -210,7 +205,7 @@ class GUIBuilders:
             text="START",
             command=self.start_update
         )
-        self.start_button.grid(row=9, column=0, columnspan=2, pady=45)
+        self.start_button.grid(row=9, column=0, columnspan=2, pady=50)
 
         self.check_button = ttk.Button(
             cred_frame,
@@ -246,3 +241,4 @@ class GUIBuilders:
             fg="black"
         )
         self.log_box.pack(fill="x", expand=False)
+        self.log_box.bind("<MouseWheel>", lambda e: self.log_box.yview_scroll(int(-1*(e.delta/120)), "units"))

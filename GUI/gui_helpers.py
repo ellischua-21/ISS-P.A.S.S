@@ -117,6 +117,7 @@ class GUIHelpers:
                 command=lambda ip=ip, var=var: self.on_checkbox_toggled(ip, var)
             )
             chk.pack(anchor="w", fill="x")
+            chk.bind("<MouseWheel>", lambda e: self.device_canvas.yview_scroll(int(-1*(e.delta/120)), "units"))
             self.ip_vars.append((ip, var))
 
         self.device_count_label.config(text=f"Device Count: {len(ips)}")
