@@ -32,17 +32,35 @@ class GUIHelpers:
             self.confirm_eye_button.config(text="👁")
 
     def select_all(self):
-        for _, var in self.ip_vars:
+        for ip, var in self.ip_vars:
             var.set(True)
+            self.checked_ips.add(ip)
         self.update_selected_count()
 
     def deselect_all(self):
-        for _, var in self.ip_vars:
+        for ip, var in self.ip_vars:
             var.set(False)
+            self.checked_ips.discard(ip)
+        self.update_selected_count()
+
+    def on_checkbox_toggled(self, ip, var):
+        if var.get():
+            self.checked_ips.add(ip)
+        else:
+            self.checked_ips.discard(ip)
+        self.update_selected_count()
+
+    def clear_ip_selection(self, ip):
+        """Remove an IP from the selected set and uncheck it if currently visible."""
+        self.checked_ips.discard(ip)
+        for other_ip, other_var in self.ip_vars:
+            if other_ip == ip:
+                other_var.set(False)
+                break
         self.update_selected_count()
 
     def update_selected_count(self):
-        selected_count = sum(1 for _, var in self.ip_vars if var.get())
+        selected_count = len(self.checked_ips)
         self.selected_count_label.config(text=f"Selected devices: {selected_count}")
 
     def animate_loading(self):
@@ -76,14 +94,15 @@ class GUIHelpers:
             empty_label = ttk.Label(self.device_list_frame, text="No devices found.")
             empty_label.pack(anchor="w", pady=10)
             self.device_count_label.config(text="Device Count: 0")
-            self.selected_count_label.config(text="Selected devices: 0")
+            self.selected_count_label.config(text=f"Selected devices: {len(self.checked_ips)}")
             return
 
-        if checked_ips is None:
-            checked_ips = set()
+        # Keep track of selections even when the list is filtered
+        if checked_ips:
+            self.checked_ips.update(checked_ips)
 
         for ip in ips:
-            var = tk.BooleanVar(value=(ip in checked_ips))
+            var = tk.BooleanVar(value=(ip in self.checked_ips))
             chk = tk.Checkbutton(
                 self.device_list_frame,
                 text=ip,
@@ -95,7 +114,7 @@ class GUIHelpers:
                 indicatoron=True,
                 borderwidth=2,
                 highlightthickness=1,
-                command=self.update_selected_count
+                command=lambda ip=ip, var=var: self.on_checkbox_toggled(ip, var)
             )
             chk.pack(anchor="w", fill="x")
             self.ip_vars.append((ip, var))

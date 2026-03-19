@@ -13,6 +13,7 @@ class PasswordManagerGUI(GUIBuilders, GUIHelpers, GUIWorkflows):
 
         self.ip_vars = []
         self.discovered_ips = []
+        self.checked_ips = set()
 
         self.loading = False
         self.loading_texts = config.LOADING_TEXTS

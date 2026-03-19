@@ -34,7 +34,8 @@ class GUIWorkflows:
 
         self.clear_log()
         self.append_log("Scanning current subnet...")
-        self.device_count_label.config(text="Device Count: 0")
+        self.checked_ips.clear()
+        self.device_count_label.config(text="Device Count: Scanning...")
         self.selected_count_label.config(text="Selected devices: 0")
 
         for widget in self.device_list_frame.winfo_children():
@@ -54,10 +55,8 @@ class GUIWorkflows:
             self.processed_count += 1
             self.root.after(0, lambda: self.progress_label.config(text=f"Progress: {self.processed_count} / {len(selected_ips)}"))
             if result["success"]:
-                # Find and uncheck the successful IP
-                for ip, var in self.ip_vars:
-                    if ip == result["ip"]:
-                                self.root.after(0, lambda v=var: (v.set(False), self.update_selected_count()))
+                # Unselect the successful IP (keeps selection state correct even when filtered)
+                self.root.after(0, lambda ip=result["ip"]: self.clear_ip_selection(ip))
         results = batch_change_password(
             ip_list=selected_ips,
             username=username,
@@ -72,7 +71,7 @@ class GUIWorkflows:
         self.start_button.config(state="normal")
 
     def start_update(self):
-        selected_ips = [ip for ip, var in self.ip_vars if var.get()]
+        selected_ips = list(self.checked_ips)
         if not selected_ips:
             messagebox.showerror("Error", "No devices selected.")
             return
