@@ -35,7 +35,7 @@ class GUIWorkflows:
         self.clear_log()
         self.append_log("Scanning current subnet...")
         self.checked_ips.clear()
-        self.device_count_label.config(text="Device Count: Scanning...")
+        self.device_count_label.config(text="Device Count: 0")
         self.selected_count_label.config(text="Selected devices: 0")
 
         for widget in self.device_list_frame.winfo_children():
@@ -108,3 +108,13 @@ class GUIWorkflows:
             daemon=True
         )
         thread.start()
+
+    def check_selected_devices(self):
+        self.clear_log()
+        selected = sorted(self.checked_ips, key=lambda ip: tuple(map(int, ip.split('.'))))
+        if not selected:
+            self.append_log("No devices selected.")
+        else:
+            self.append_log("Checked devices:")
+            for ip in selected:
+                self.append_log(f"  - {ip}")

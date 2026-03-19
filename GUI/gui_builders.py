@@ -210,13 +210,20 @@ class GUIBuilders:
             text="START",
             command=self.start_update
         )
-        self.start_button.grid(row=8, column=0, columnspan=2, pady=50)
+        self.start_button.grid(row=9, column=0, columnspan=2, pady=45)
+
+        self.check_button = ttk.Button(
+            cred_frame,
+            text="CHECK",
+            command=self.check_selected_devices
+        )
+        self.check_button.grid(row=10, column=0, columnspan=2, pady=5)
 
         self.progress_label = ttk.Label(cred_frame, text="Progress: 0 / 0")
-        self.progress_label.grid(row=9, column=0, columnspan=2, pady=5)
+        self.progress_label.grid(row=11, column=0, columnspan=2, pady=45)
 
         self.loading_label = ttk.Label(cred_frame, text="")
-        self.loading_label.grid(row=10, column=0, columnspan=2, pady=5)
+        self.loading_label.grid(row=12 , column=0, columnspan=2, pady=5)
 
     def build_log_frame(self, parent):
         log_frame = tk.LabelFrame(
