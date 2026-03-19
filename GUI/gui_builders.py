@@ -37,13 +37,16 @@ class GUIBuilders:
 
         device_frame.grid_columnconfigure(0, weight=1)
         device_frame.grid_columnconfigure(1, weight=0)
-        device_frame.grid_rowconfigure(2, weight=1)
+        device_frame.grid_rowconfigure(3, weight=1)
 
         self.device_count_label = ttk.Label(device_frame, text="Device Count: 0")
-        self.device_count_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=(0, 5))
+        self.device_count_label.grid(row=0, column=0, sticky="w", padx=5, pady=(0, 5))
+
+        self.selected_count_label = ttk.Label(device_frame, text="Selected devices: 0")
+        self.selected_count_label.grid(row=1, column=0, columnspan=2, sticky="w", padx=5, pady=(0, 5))
 
         search_frame = ttk.Frame(device_frame)
-        search_frame.grid(row=1, column=0, columnspan=2, sticky="ew", padx=5, pady=(0, 5))
+        search_frame.grid(row=2, column=0, columnspan=2, sticky="ew", padx=5, pady=(0, 5))
 
         ttk.Label(search_frame, text="Search:").pack(side="left")
         self.search_var = tk.StringVar()
@@ -58,7 +61,7 @@ class GUIBuilders:
         self.search_entry.pack(side="left", fill="x", expand=True, padx=(5, 0))
 
         canvas_frame = ttk.Frame(device_frame)
-        canvas_frame.grid(row=2, column=0, sticky="nsew")
+        canvas_frame.grid(row=3, column=0, sticky="nsew")
 
         self.device_canvas = tk.Canvas(
             canvas_frame,
@@ -92,7 +95,7 @@ class GUIBuilders:
         self.device_scrollbar.pack(side="right", fill="y")
 
         button_frame = ttk.Frame(device_frame)
-        button_frame.grid(row=2, column=1, sticky="n", padx=5, pady=5)
+        button_frame.grid(row=3, column=1, sticky="n", padx=5, pady=5)
 
         self.refresh_button = ttk.Button(
             button_frame,

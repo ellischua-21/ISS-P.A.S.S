@@ -34,10 +34,16 @@ class GUIHelpers:
     def select_all(self):
         for _, var in self.ip_vars:
             var.set(True)
+        self.update_selected_count()
 
     def deselect_all(self):
         for _, var in self.ip_vars:
             var.set(False)
+        self.update_selected_count()
+
+    def update_selected_count(self):
+        selected_count = sum(1 for _, var in self.ip_vars if var.get())
+        self.selected_count_label.config(text=f"Selected devices: {selected_count}")
 
     def animate_loading(self):
         if self.loading:
@@ -70,6 +76,7 @@ class GUIHelpers:
             empty_label = ttk.Label(self.device_list_frame, text="No devices found.")
             empty_label.pack(anchor="w", pady=10)
             self.device_count_label.config(text="Device Count: 0")
+            self.selected_count_label.config(text="Selected devices: 0")
             return
 
         if checked_ips is None:
@@ -87,12 +94,14 @@ class GUIHelpers:
                 pady=12,
                 indicatoron=True,
                 borderwidth=2,
-                highlightthickness=1
+                highlightthickness=1,
+                command=self.update_selected_count
             )
             chk.pack(anchor="w", fill="x")
             self.ip_vars.append((ip, var))
 
         self.device_count_label.config(text=f"Device Count: {len(ips)}")
+        self.update_selected_count()
 
     def filter_device_list(self, *args):
         query = self.search_var.get().strip().lower()

@@ -21,7 +21,7 @@ class GUIWorkflows:
         if error_message:
             self.append_log(f"Discovery error: {error_message}")
         else:
-            self.append_log(f"Discovery complete. {len(devices)} device(s) found.")
+            self.append_log(f"Scanning complete. {len(devices)} device(s) found.")
 
         self.refresh_button.config(state="normal")
         self.select_all_button.config(state="normal")
@@ -34,7 +34,8 @@ class GUIWorkflows:
 
         self.clear_log()
         self.append_log("Scanning current subnet...")
-        self.device_count_label.config(text="Device Count: Scanning...")
+        self.device_count_label.config(text="Device Count: 0")
+        self.selected_count_label.config(text="Selected devices: 0")
 
         for widget in self.device_list_frame.winfo_children():
             widget.destroy()
@@ -56,9 +57,7 @@ class GUIWorkflows:
                 # Find and uncheck the successful IP
                 for ip, var in self.ip_vars:
                     if ip == result["ip"]:
-                        self.root.after(0, lambda v=var: v.set(False))
-                        break
-
+                                self.root.after(0, lambda v=var: (v.set(False), self.update_selected_count()))
         results = batch_change_password(
             ip_list=selected_ips,
             username=username,
