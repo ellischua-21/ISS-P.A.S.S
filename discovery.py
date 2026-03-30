@@ -1,8 +1,9 @@
+# Import necessary modules
 import socket
 import requests
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-
+# Function to get the local IP address
 def get_local_ip():
     hostname = socket.gethostname()
     local_ip = socket.gethostbyname(hostname)
@@ -17,7 +18,7 @@ def get_local_ip():
 
     return local_ip
 
-
+# Function to get all hosts in the local subnet
 def get_local_subnet_hosts():
     local_ip = get_local_ip()
     ip_parts = local_ip.split(".")
@@ -29,8 +30,9 @@ def get_local_subnet_hosts():
         if f"{subnet_base}.{i}" != local_ip
     ]
 
-
+# Function to check if an IP is a Hikvision device
 def is_hikvision_device(ip):
+    # Check if port 80 is open
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.settimeout(0.8)
 
@@ -41,6 +43,7 @@ def is_hikvision_device(ip):
     finally:
         sock.close()
 
+    # Check for Hikvision API response
     try:
         response = requests.get(
             f"http://{ip}/ISAPI/System/deviceInfo",
@@ -61,11 +64,12 @@ def is_hikvision_device(ip):
 
     return False
 
-
+# Function to discover all Hikvision devices on the network
 def discover_devices():
     hosts = get_local_subnet_hosts()
     found_devices = []
 
+    # Use thread pool for concurrent checking
     with ThreadPoolExecutor(max_workers=20) as executor:
         future_map = {
             executor.submit(is_hikvision_device, ip): ip

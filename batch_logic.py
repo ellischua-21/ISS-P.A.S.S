@@ -1,9 +1,10 @@
+# Import necessary modules
 import re
 import time
 import requests
 from requests.auth import HTTPDigestAuth
 
-
+# Function to validate password strength
 def is_valid_password(password: str):
     if len(password) < 8:
         return False, "Password must be at least 8 characters long."
@@ -11,10 +12,12 @@ def is_valid_password(password: str):
         return False, "Password must contain at least one number."
     return True, "Password is valid."
 
-
+# Function to change password on a single camera
 def change_camera_password(ip: str, username: str, current_password: str, new_password: str, timeout: int = 10):
+    # Construct the API URL
     url = f"http://{ip}/ISAPI/Security/users/1"
 
+    # XML payload for the request
     xml_payload = f"""<?xml version="1.0" encoding="UTF-8"?>
 <User version="2.0" xmlns="http://www.hikvision.com/ver20/XMLSchema">
     <id>1</id>
@@ -23,10 +26,12 @@ def change_camera_password(ip: str, username: str, current_password: str, new_pa
 </User>
 """
 
+    # Headers for the request
     headers = {
         "Content-Type": "application/xml"
     }
 
+    # Try to make the PUT request
     try:
         response = requests.put(
             url,
@@ -36,6 +41,7 @@ def change_camera_password(ip: str, username: str, current_password: str, new_pa
             timeout=timeout
         )
 
+        # Check response status
         if response.status_code in (200, 204):
             return True, f"{ip} -> Password changed successfully."
         elif response.status_code == 401:
@@ -45,6 +51,7 @@ def change_camera_password(ip: str, username: str, current_password: str, new_pa
         else:
             return False, f"{ip} -> Failed ({response.status_code})"
 
+    # Handle exceptions
     except requests.exceptions.ConnectTimeout:
         return False, f"{ip} -> Connection timed out."
     except requests.exceptions.ConnectionError:
@@ -52,16 +59,19 @@ def change_camera_password(ip: str, username: str, current_password: str, new_pa
     except Exception as e:
         return False, f"{ip} -> Error: {str(e)}"
 
-
+# Function to batch change passwords on multiple cameras
 def batch_change_password(ip_list, username, current_password, new_password, retries=1, delay_between_devices=1, callback=None):
 
+    # List to store results
     results = []
 
+    # Loop through each IP
     for ip in ip_list:
 
         success = False
         message = ""
 
+        # Retry logic
         for attempt in range(retries + 1):
 
             ok, result_message = change_camera_password(
@@ -80,6 +90,7 @@ def batch_change_password(ip_list, username, current_password, new_password, ret
             if attempt < retries:
                 time.sleep(1)
 
+        # Create result dictionary
         result = {
             "ip": ip,
             "success": success,

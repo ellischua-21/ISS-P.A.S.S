@@ -1,11 +1,13 @@
+# Import necessary modules
 from tkinter import ttk, messagebox
 import threading
 
 from batch_logic import batch_change_password, is_valid_password
 from discovery import discover_devices, get_local_ip
 
-
+# Class for GUI workflow functions
 class GUIWorkflows:
+    # Run device discovery in a thread
     def run_discovery(self):
         try:
             self.append_log(f"Detected local IP: {get_local_ip()}")
@@ -14,6 +16,7 @@ class GUIWorkflows:
         except Exception as e:
             self.root.after(0, lambda: self.finish_discovery([], str(e)))
 
+    # Finish discovery and update UI
     def finish_discovery(self, devices, error_message=None):
         self.discovered_ips = devices
         self.filter_device_list()
@@ -27,6 +30,7 @@ class GUIWorkflows:
         self.select_all_button.config(state="normal")
         self.deselect_all_button.config(state="normal")
 
+    # Refresh the device list
     def refresh_devices(self):
         self.refresh_button.config(state="disabled")
         self.select_all_button.config(state="disabled")
@@ -47,6 +51,7 @@ class GUIWorkflows:
         thread = threading.Thread(target=self.run_discovery, daemon=True)
         thread.start()
 
+    # Run the batch password change process
     def run_batch_process(self, selected_ips, username, current_pass, new_pass):
         self.processed_count = 0
 
@@ -66,10 +71,12 @@ class GUIWorkflows:
         )
         self.root.after(0, lambda: self.finish_update(results, selected_ips))
 
+    # Finish the update process
     def finish_update(self, results, selected_ips):
         self.loading = False
         self.start_button.config(state="normal")
 
+    # Start the password update process
     def start_update(self):
         selected_ips = list(self.checked_ips)
         if not selected_ips:
@@ -112,6 +119,7 @@ class GUIWorkflows:
         )
         thread.start()
 
+    # Check and list selected devices
     def check_selected_devices(self):
         self.clear_log()
         selected = sorted(self.checked_ips, key=lambda ip: tuple(map(int, ip.split('.'))))

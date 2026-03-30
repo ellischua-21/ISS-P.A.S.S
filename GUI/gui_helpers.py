@@ -1,9 +1,11 @@
+# Import necessary modules
 import tkinter as tk
 from tkinter import ttk
 import config
 
-
+# Class for GUI helper functions
 class GUIHelpers:
+    # Toggle visibility of current password field
     def toggle_current_password(self):
         self.current_password_visible = not self.current_password_visible
         if self.current_password_visible:
@@ -13,6 +15,7 @@ class GUIHelpers:
             self.current_pass_entry.config(show="*")
             self.current_eye_button.config(text="👁")
 
+    # Toggle visibility of new password field
     def toggle_new_password(self):
         self.new_password_visible = not self.new_password_visible
         if self.new_password_visible:
@@ -22,6 +25,7 @@ class GUIHelpers:
             self.new_pass_entry.config(show="*")
             self.new_eye_button.config(text="👁")
 
+    # Toggle visibility of confirm password field
     def toggle_confirm_password(self):
         self.confirm_password_visible = not self.confirm_password_visible
         if self.confirm_password_visible:
@@ -31,18 +35,21 @@ class GUIHelpers:
             self.confirm_pass_entry.config(show="*")
             self.confirm_eye_button.config(text="👁")
 
+    # Select all devices
     def select_all(self):
         for ip, var in self.ip_vars:
             var.set(True)
             self.checked_ips.add(ip)
         self.update_selected_count()
 
+    # Deselect all devices
     def deselect_all(self):
         for ip, var in self.ip_vars:
             var.set(False)
             self.checked_ips.discard(ip)
         self.update_selected_count()
 
+    # Handle checkbox toggle
     def on_checkbox_toggled(self, ip, var):
         if var.get():
             self.checked_ips.add(ip)
@@ -50,6 +57,7 @@ class GUIHelpers:
             self.checked_ips.discard(ip)
         self.update_selected_count()
 
+    # Clear selection for a specific IP
     def clear_ip_selection(self, ip):
         """Remove an IP from the selected set and uncheck it if currently visible."""
         self.checked_ips.discard(ip)
@@ -59,10 +67,12 @@ class GUIHelpers:
                 break
         self.update_selected_count()
 
+    # Update the selected count label
     def update_selected_count(self):
         selected_count = len(self.checked_ips)
         self.selected_count_label.config(text=f"Selected devices: {selected_count}")
 
+    # Animate the loading text
     def animate_loading(self):
         if self.loading:
             self.loading_label.config(
@@ -73,17 +83,20 @@ class GUIHelpers:
         else:
             self.loading_label.config(text="")
 
+    # Append message to log
     def append_log(self, message):
         self.log_box.config(state="normal")
         self.log_box.insert(tk.END, message + "\n")
         self.log_box.see(tk.END)
         self.log_box.config(state="disabled")
 
+    # Clear the log
     def clear_log(self):
         self.log_box.config(state="normal")
         self.log_box.delete(1.0, tk.END)
         self.log_box.config(state="disabled")
 
+    # Populate the device list with checkboxes
     def populate_device_list(self, ips, checked_ips=None):
         for widget in self.device_list_frame.winfo_children():
             widget.destroy()
@@ -123,6 +136,7 @@ class GUIHelpers:
         self.device_count_label.config(text=f"Device Count: {len(ips)}")
         self.update_selected_count()
 
+    # Filter the device list based on search query
     def filter_device_list(self, *args):
         query = self.search_var.get().strip().lower()
 

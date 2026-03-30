@@ -1,11 +1,13 @@
+# Import necessary modules
 import tkinter as tk
 from tkinter import ttk, messagebox
 
 from GUI.gui_app import PasswordManagerGUI
 from auth_manager import validate_login, change_password
 
-
+# Class for the login window
 class LoginWindow:
+    # Initialize the login window
     def __init__(self, root):
         self.root = root
         self.root.title("P.A.S.S Login")
@@ -16,6 +18,7 @@ class LoginWindow:
 
         self.build_ui()
 
+    # Build the user interface
     def build_ui(self):
         main_frame = ttk.Frame(self.root, padding=20)
         main_frame.pack(fill="both", expand=True)
@@ -65,6 +68,7 @@ class LoginWindow:
         )
         change_pass_button.pack()
 
+    # Toggle password visibility
     def toggle_password(self):
         self.password_visible = not self.password_visible
         if self.password_visible:
@@ -74,6 +78,7 @@ class LoginWindow:
             self.password_entry.config(show="*")
             self.eye_button.config(text="👁")
 
+    # Handle login attempt
     def login(self):
         username = self.username_entry.get().strip()
         password = self.password_entry.get()
@@ -83,12 +88,14 @@ class LoginWindow:
         else:
             messagebox.showerror("Login Failed", "Invalid username or password.")
 
+    # Open the main application
     def open_main_app(self):
         self.root.destroy()
         main_root = tk.Tk()
         app = PasswordManagerGUI(main_root)
         main_root.mainloop()
 
+    # Open the change password window
     def open_change_password_window(self):
         change_window = tk.Toplevel(self.root)
         change_window.title("Change Password")
@@ -129,6 +136,7 @@ class LoginWindow:
         confirm_eye_button = ttk.Button(confirm_frame, text="👁", width=3)
         confirm_eye_button.pack(side="left", padx=(5, 0))
 
+        # Toggle visibility function
         def toggle_entry(entry_widget, button_widget, visible_var):
             visible_var.set(not visible_var.get())
             if visible_var.get():
@@ -148,6 +156,7 @@ class LoginWindow:
             command=lambda: toggle_entry(confirm_pass_entry, confirm_eye_button, confirm_visible)
         )
 
+        # Submit change function
         def submit_change():
             current_password = current_pass_entry.get()
             new_password = new_pass_entry.get()

@@ -1,15 +1,18 @@
+# Import necessary modules
 import tkinter as tk
 from tkinter import ttk
 import config
 
-
+# Class for building GUI components
 class GUIBuilders:
+    # Set up ttk styles
     def setup_styles(self):
         self.style = ttk.Style()
         self.style.configure("TLabel", font=config.LABEL_FONT)
         self.style.configure("TButton", font=config.BUTTON_FONT)
         self.style.configure("TLabelframe.Label", font=config.LABELED_FRAME_FONT)
 
+    # Build the main UI
     def build_ui(self):
         main_frame = ttk.Frame(self.root, padding=10)
         main_frame.pack(fill="both", expand=True)
@@ -21,6 +24,7 @@ class GUIBuilders:
         self.build_credentials_frame(top_frame)
         self.build_log_frame(main_frame)
 
+    # Build the device selection frame
     def build_device_frame(self, parent):
         device_frame = tk.LabelFrame(
             parent,
@@ -45,6 +49,7 @@ class GUIBuilders:
         self.selected_count_label = ttk.Label(device_frame, text="Selected devices: 0")
         self.selected_count_label.grid(row=1, column=0, columnspan=2, sticky="w", padx=5, pady=(0, 5))
 
+        # Search frame
         search_frame = ttk.Frame(device_frame)
         search_frame.grid(row=2, column=0, columnspan=2, sticky="ew", padx=5, pady=(0, 5))
 
@@ -60,6 +65,7 @@ class GUIBuilders:
         )
         self.search_entry.pack(side="left", fill="x", expand=True, padx=(5, 0))
 
+        # Canvas for device list
         canvas_frame = ttk.Frame(device_frame)
         canvas_frame.grid(row=3, column=0, sticky="nsew")
 
@@ -89,6 +95,7 @@ class GUIBuilders:
         self.device_canvas.pack(side="left", fill="both", expand=True)
         self.device_scrollbar.pack(side="right", fill="y")
 
+        # Button frame
         button_frame = ttk.Frame(device_frame)
         button_frame.grid(row=3, column=1, sticky="n", padx=5, pady=5)
 
@@ -113,6 +120,7 @@ class GUIBuilders:
         )
         self.deselect_all_button.pack(fill="x", pady=(2, 0))
 
+    # Build the credentials input frame
     def build_credentials_frame(self, parent):
         cred_frame = tk.LabelFrame(
             parent,
@@ -220,6 +228,7 @@ class GUIBuilders:
         self.loading_label = ttk.Label(cred_frame, text="")
         self.loading_label.grid(row=12 , column=0, columnspan=2, pady=5)
 
+    # Build the log display frame
     def build_log_frame(self, parent):
         log_frame = tk.LabelFrame(
             parent,
