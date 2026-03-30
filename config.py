@@ -1,6 +1,6 @@
 # Window configuration
 WINDOW_TITLE = "P.A.S.S."
-WINDOW_SIZE = "900x900"
+WINDOW_SIZE = "1125x900"
 RESIZABLE_WIDTH = False
 RESIZABLE_HEIGHT = False
 

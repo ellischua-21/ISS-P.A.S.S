@@ -129,3 +129,12 @@ class GUIWorkflows:
             self.append_log("Checked devices:")
             for ip in selected:
                 self.append_log(f"  - {ip}")
+
+    # Log out and return to login screen
+    def logout(self):
+        self.root.destroy()
+        import tkinter as tk
+        from login import LoginWindow
+        root = tk.Tk()
+        login = LoginWindow(root)
+        root.mainloop()
