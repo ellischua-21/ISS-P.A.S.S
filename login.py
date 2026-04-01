@@ -1,6 +1,14 @@
 # Import necessary modules
 import tkinter as tk
 from tkinter import ttk, messagebox
+import os
+
+# Try to import PIL for image support
+try:
+    from PIL import Image, ImageTk
+    PIL_AVAILABLE = True
+except ImportError:
+    PIL_AVAILABLE = False
 
 from GUI.gui_app import PasswordManagerGUI
 from auth_manager import validate_login, change_password
@@ -10,7 +18,7 @@ class LoginWindow:
     # Initialize the login window
     def __init__(self, root):
         self.root = root
-        self.root.title("P.A.S.S Login")
+        self.root.title("P.A.S.S. Login")
         self.root.geometry("400x320")
         self.root.resizable(False, False)
 
@@ -23,12 +31,30 @@ class LoginWindow:
         main_frame = ttk.Frame(self.root, padding=20)
         main_frame.pack(fill="both", expand=True)
 
+        # Create a frame for title and logo
+        title_frame = ttk.Frame(main_frame)
+        title_frame.pack(pady=(0, 20))
+
+        # Load and display the MEC logo
+        logo_loaded = False
+        if PIL_AVAILABLE:
+            logo_path = os.path.join(os.path.dirname(__file__), "MEClogo.png")
+            try:
+                logo_pil = Image.open(logo_path)
+                logo_pil.thumbnail((40, 40), Image.Resampling.LANCZOS)
+                self.logo_photo = ImageTk.PhotoImage(logo_pil)
+                logo_label = ttk.Label(title_frame, image=self.logo_photo)
+                logo_label.pack(side="left", padx=(0, 10))
+                logo_loaded = True
+            except Exception as e:
+                pass  # Fall through to text logo
+
         title_label = ttk.Label(
-            main_frame,
+            title_frame,
             text="P.A.S.S Login",
             font=("Consolas", 18, "bold")
         )
-        title_label.pack(pady=(0, 20))
+        title_label.pack(side="left")
 
         ttk.Label(main_frame, text="Username").pack(anchor="w")
         self.username_entry = ttk.Entry(main_frame, font=("Consolas", 14))
